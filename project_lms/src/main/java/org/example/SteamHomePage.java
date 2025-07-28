@@ -1,82 +1,120 @@
 package org.example;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.PageFactory; // Импорт PageFactory
+import org.openqa.selenium.support.FindBy;     // Импорт FindBy
+import org.openqa.selenium.support.How;        // Импорт How
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.JavascriptExecutor; // Импорт для JavaScriptExecutor
-
+import org.openqa.selenium.JavascriptExecutor;
 
 public class SteamHomePage {
     private WebDriver driver;
     private WebDriverWait wait;
     private Actions actions;
 
-    // --- Локаторы для главной страницы ---
-    private By loginButton = By.xpath("//a[contains(@class, 'global_action_link') and text()='войти']");
-    private By loggedInAccountPulldown = By.xpath("//div[@id='account_pulldown']");
+    // --- Локаторы с @FindBy ---
+    @FindBy(how = How.XPATH, using = "//a[contains(@class, 'global_action_link') and text()='войти']")
+    private WebElement loginButton;
 
-    // Локаторы для меню магазина и поиска
-    private By storeMenuButton = By.xpath("//div[@id='store_nav_area']//a[text()='Магазин']");
-    private By homePageSubMenuItem = By.xpath("//div[@id='foryou_flyout']//a[text()='Главная страница']");
+    @FindBy(how = How.ID, using = "account_pulldown")
+    private WebElement loggedInAccountPulldown;
 
-    // Уточненный локатор для кнопки меню "Новое и интересное" (desktop-версия)
-    private By noteworthyMenuButton = By.xpath("//div[@id='noteworthy_tab']/span[@class='pulldown']/a[@class='pulldown_desktop' and text()='Новое и интересное']");
-    // Более гибкий локатор для "Лидеры продаж" (ищет по тексту в любой popup_menu_item)
-    private By bestsellersSubMenuItem = By.xpath("//a[text()='Лидеры продаж']");
+    @FindBy(how = How.XPATH, using = "//div[@id='store_nav_area']//a[text()='Магазин']")
+    private WebElement storeMenuButton;
 
+    @FindBy(how = How.XPATH, using = "//div[@id='foryou_flyout']//a[text()='Главная страница']")
+    private WebElement homePageSubMenuItem;
 
-    // Уточненный локатор для кнопки меню "Категории" (desktop-версия)
-    private By categoriesMenuButton = By.xpath("//div[@id='genre_tab']/span[@class='pulldown']/a[@class='pulldown_desktop' and text()='Категории']");
-    // Более гибкий локатор для "Бесплатные"
-    private By freeToPlaySubMenuItem = By.xpath("//a[contains(@class, 'popup_menu_item') and text()='Бесплатные']");
+    @FindBy(how = How.XPATH, using = "//div[@id='noteworthy_tab']/span[@class='pulldown']/a[@class='pulldown_desktop' and text()='Новое и интересное']")
+    private WebElement noteworthyMenuButton;
 
-    private By searchInputField = By.xpath("//input[@id='store_nav_search_term']");
-    private By searchButton = By.xpath("//form[@id='searchform']//a[@id='store_search_link']");
+    @FindBy(how = How.XPATH, using = "//a[text()='Лидеры продаж']")
+    private WebElement bestsellersSubMenuItem;
 
-    // Локаторы для секций на главной странице
-    private By discountsAndEventsHeader = By.xpath("//h2[text()='Скидки и мероприятия']");
-    private By moreDiscountsButton = By.xpath("//h2[text()='Скидки и мероприятия']//a[contains(., 'Ещё') or contains(., 'Больше продуктов')]");
-    private By firstFeaturedGameTitle = By.xpath("//div[@id='home_maincap_v7']//div[@class='app_name']/div");
+    @FindBy(how = How.XPATH, using = "//div[@id='genre_tab']/span[@class='pulldown']/a[@class='pulldown_desktop' and text()='Категории']")
+    private WebElement categoriesMenuButton;
+
+    @FindBy(how = How.XPATH, using = "//a[contains(@class, 'popup_menu_item') and text()='Бесплатные']")
+    private WebElement freeToPlaySubMenuItem;
+
+    @FindBy(how = How.ID, using = "store_nav_search_term")
+    private WebElement searchInputField;
+
+    // Используется для assert на главной странице, что header виден
+    @FindBy(how = How.XPATH, using = "//h2[text()='Скидки и мероприятия']")
+    private WebElement discountsAndEventsHeader;
+
+    @FindBy(how = How.XPATH, using = "//h2[text()='Скидки и мероприятия']//a[contains(., 'Ещё') or contains(., 'Больше продуктов')]")
+    private WebElement moreDiscountsButton;
+
+    @FindBy(how = How.XPATH, using = "//div[@id='home_maincap_v7']//div[@class='app_name']/div")
+    private WebElement firstFeaturedGameTitle;
 
     // Локаторы для вкладок "Популярные новинки", "Лидеры продаж" и т.д.
-    private By newReleasesTab = By.xpath("//button[@id='tab_newreleases_content_trigger']");
-    private By topSellersTab = By.xpath("//button[@id='tab_topsellers_content_trigger']");
-    private By upcomingTab = By.xpath("//button[@id='tab_upcoming_content_trigger']");
-    private By specialsTab = By.xpath("//button[@id='tab_specials_content_trigger']");
-    private By trendingFreeTab = By.xpath("//button[@id='tab_trendingfree_content_trigger']");
+    @FindBy(how = How.ID, using = "tab_newreleases_content_trigger")
+    private WebElement newReleasesTab;
 
-    private By tabContentContainer = By.id("home_tabs_content");
+    @FindBy(how = How.ID, using = "tab_topsellers_content_trigger")
+    private WebElement topSellersTab;
+
+    @FindBy(how = How.ID, using = "tab_upcoming_content_trigger")
+    private WebElement upcomingTab;
+
+    @FindBy(how = How.ID, using = "tab_specials_content_trigger")
+    private WebElement specialsTab;
+
+    @FindBy(how = How.ID, using = "tab_trendingfree_content_trigger")
+    private WebElement trendingFreeTab;
+
+    @FindBy(how = How.ID, using = "home_tabs_content")
+    private WebElement tabContentContainer;
+
+    @FindBy(how = How.XPATH, using = "//div[@class='home_tabs_row']//button[contains(@class, 'active')]//div[@class='tab_content']")
+    private WebElement activeTabTitleElement;
 
 
     public SteamHomePage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
         this.wait = wait;
         this.actions = new Actions(driver);
+        PageFactory.initElements(driver, this); // Инициализация элементов PageFactory
     }
 
-    public By getLoginButtonLocator() {
+    public WebElement getLoginButton() { // Геттер теперь возвращает WebElement
         return loginButton;
     }
 
+    public WebElement getCategoriesMenuButton() { // Геттер для кнопки "Категории"
+        return categoriesMenuButton;
+    }
+
     /**
-     * Открывает главную страницу Steam. (Хотя обычно вызывается в BaseTest)
+     * Открывает главную страницу Steam. (Обычно вызывается в BaseTest)
      */
     public void open() {
         driver.get(Constants.STEAM_BASE_URL);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(loginButton));
+        wait.until(ExpectedConditions.visibilityOf(loginButton)); // Ожидание видимости элемента
         System.out.println("Открыта домашняя страница Steam.");
     }
 
-
+    /**
+     * Нажимает кнопку "Войти" и возвращает объект страницы логина.
+     */
+    public SteamLoginPage clickLoginButton() {
+        System.out.println("Нажимаем кнопку 'Войти' на домашней странице.");
+        wait.until(ExpectedConditions.elementToBeClickable(loginButton)).click();
+        wait.until(ExpectedConditions.urlContains("login"));
+        return new SteamLoginPage(driver, wait);
+    }
 
     public boolean isUserLoggedIn() {
         try {
-            boolean loginButtonInvisible = wait.until(ExpectedConditions.invisibilityOfElementLocated(loginButton));
-            boolean loggedInElementVisible = wait.until(ExpectedConditions.visibilityOfElementLocated(loggedInAccountPulldown)).isDisplayed();
+            boolean loginButtonInvisible = wait.until(ExpectedConditions.invisibilityOf(loginButton));
+            boolean loggedInElementVisible = wait.until(ExpectedConditions.visibilityOf(loggedInAccountPulldown)).isDisplayed();
             return loginButtonInvisible && loggedInElementVisible;
         } catch (Exception e) {
             System.out.println("Не удалось подтвердить вход: " + e.getMessage());
@@ -88,10 +126,9 @@ public class SteamHomePage {
      * Наводит курсор на кнопку "Магазин" для активации выпадающего меню.
      */
     public void hoverOverStoreMenu() {
-        WebElement storeMenu = wait.until(ExpectedConditions.elementToBeClickable(storeMenuButton));
-        actions.moveToElement(storeMenu).perform();
+        wait.until(ExpectedConditions.elementToBeClickable(storeMenuButton));
+        actions.moveToElement(storeMenuButton).perform();
         System.out.println("Наведен курсор на меню 'Магазин'.");
-        // Ждем, что пункт подменю станет кликабельным
         wait.until(ExpectedConditions.elementToBeClickable(homePageSubMenuItem));
     }
 
@@ -108,10 +145,7 @@ public class SteamHomePage {
      * Вводит текст в поле поиска и нажимает Enter.
      */
     public void enterSearchTerm(String term) {
-        WebElement searchInput = wait.until(ExpectedConditions.elementToBeClickable(searchInputField));
-        searchInput.clear();
-        searchInput.sendKeys(term);
-        searchInput.sendKeys(Keys.ENTER);
+        wait.until(ExpectedConditions.elementToBeClickable(searchInputField)).sendKeys(term + Keys.ENTER);
         System.out.println("Введен текст поиска: " + term + " и нажата Enter.");
     }
 
@@ -119,7 +153,7 @@ public class SteamHomePage {
      * Проверяет видимость заголовка "Скидки и мероприятия".
      */
     public boolean isDiscountsAndEventsHeaderDisplayed() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(discountsAndEventsHeader)).isDisplayed();
+        return wait.until(ExpectedConditions.visibilityOf(discountsAndEventsHeader)).isDisplayed();
     }
 
     /**
@@ -135,43 +169,40 @@ public class SteamHomePage {
      * Получает название первой игры в карусели "Популярное и рекомендуемое".
      */
     public String getFirstFeaturedGameTitle() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(firstFeaturedGameTitle)).getText();
+        return wait.until(ExpectedConditions.visibilityOf(firstFeaturedGameTitle)).getText();
     }
 
     /**
      * Наводит курсор на меню "Новое и интересное" и кликает на "Лидеры продаж".
-     * Теперь возвращает SteamSearchResultsPage, так как Steam перенаправляет туда.
      */
-    public SteamSearchResultsPage navigateToBestsellers() { // ИЗМЕНЕНИЕ: Возвращает SteamSearchResultsPage
-        WebElement noteworthyMenu = wait.until(ExpectedConditions.elementToBeClickable(noteworthyMenuButton)); // Ждем кликабельности кнопки меню
-        actions.moveToElement(noteworthyMenu).perform();
+    public SteamSearchResultsPage navigateToBestsellers() {
+        wait.until(ExpectedConditions.elementToBeClickable(noteworthyMenuButton));
+        actions.moveToElement(noteworthyMenuButton).perform();
         System.out.println("Наведен курсор на меню 'Новое и интересное'.");
 
-        // Попытаемся кликнуть обычным способом, если не получится - используем JS-клик
         try {
             wait.until(ExpectedConditions.elementToBeClickable(bestsellersSubMenuItem)).click();
         } catch (Exception e) {
             System.out.println("Не удалось кликнуть по 'Лидеры продаж' обычным способом, пробуем JS-клик. Ошибка: " + e.getMessage());
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", driver.findElement(bestsellersSubMenuItem));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", bestsellersSubMenuItem);
         }
         System.out.println("Клик по пункту 'Лидеры продаж'.");
-        // После клика, ожидаем, что попадем на страницу поиска с фильтром topsellers
         wait.until(ExpectedConditions.urlContains("search/?filter=topsellers"));
-        return new SteamSearchResultsPage(driver, wait); // ИЗМЕНЕНИЕ: Возвращаем SteamSearchResultsPage
+        return new SteamSearchResultsPage(driver, wait);
     }
 
     /**
      * Наводит курсор на меню "Категории" и кликает на "Бесплатные".
      */
     public SteamFreeToPlayPage navigateToFreeToPlay() {
-        WebElement categoriesMenu = wait.until(ExpectedConditions.elementToBeClickable(categoriesMenuButton)); // Ждем кликабельности кнопки меню
-        actions.moveToElement(categoriesMenu).perform();
+        wait.until(ExpectedConditions.elementToBeClickable(categoriesMenuButton));
+        actions.moveToElement(categoriesMenuButton).perform();
         System.out.println("Наведен курсор на меню 'Категории'.");
         try {
             wait.until(ExpectedConditions.elementToBeClickable(freeToPlaySubMenuItem)).click();
         } catch (Exception e) {
             System.out.println("Не удалось кликнуть по 'Бесплатные' обычным способом, пробуем JS-клик. Ошибка: " + e.getMessage());
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", driver.findElement(freeToPlaySubMenuItem));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", freeToPlaySubMenuItem);
         }
         System.out.println("Клик по пункту 'Бесплатные'.");
         return new SteamFreeToPlayPage(driver, wait);
@@ -183,7 +214,7 @@ public class SteamHomePage {
     public void clickNewReleasesTab() {
         wait.until(ExpectedConditions.elementToBeClickable(newReleasesTab)).click();
         wait.until(ExpectedConditions.attributeContains(newReleasesTab, "class", "active"));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(tabContentContainer));
+        wait.until(ExpectedConditions.visibilityOf(tabContentContainer));
         System.out.println("Клик по вкладке 'Популярные новинки'.");
     }
 
@@ -193,7 +224,7 @@ public class SteamHomePage {
     public void clickTopSellersTab() {
         wait.until(ExpectedConditions.elementToBeClickable(topSellersTab)).click();
         wait.until(ExpectedConditions.attributeContains(topSellersTab, "class", "active"));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(tabContentContainer));
+        wait.until(ExpectedConditions.visibilityOf(tabContentContainer));
         System.out.println("Клик по вкладке 'Лидеры продаж'.");
     }
 
@@ -203,7 +234,7 @@ public class SteamHomePage {
     public void clickUpcomingTab() {
         wait.until(ExpectedConditions.elementToBeClickable(upcomingTab)).click();
         wait.until(ExpectedConditions.attributeContains(upcomingTab, "class", "active"));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(tabContentContainer));
+        wait.until(ExpectedConditions.visibilityOf(tabContentContainer));
         System.out.println("Клик по вкладке 'Популярные будущие новинки'.");
     }
 
@@ -213,7 +244,7 @@ public class SteamHomePage {
     public void clickSpecialsTab() {
         wait.until(ExpectedConditions.elementToBeClickable(specialsTab)).click();
         wait.until(ExpectedConditions.attributeContains(specialsTab, "class", "active"));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(tabContentContainer));
+        wait.until(ExpectedConditions.visibilityOf(tabContentContainer));
         System.out.println("Клик по вкладке 'Скидки'.");
     }
 
@@ -223,7 +254,7 @@ public class SteamHomePage {
     public void clickTrendingFreeTab() {
         wait.until(ExpectedConditions.elementToBeClickable(trendingFreeTab)).click();
         wait.until(ExpectedConditions.attributeContains(trendingFreeTab, "class", "active"));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(tabContentContainer));
+        wait.until(ExpectedConditions.visibilityOf(tabContentContainer));
         System.out.println("Клик по вкладке 'Популярные бесплатные игры'.");
     }
 
@@ -231,15 +262,6 @@ public class SteamHomePage {
      * Получает заголовок активной вкладки.
      */
     public String getActiveTabTitle() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='home_tabs_row']//button[contains(@class, 'active')]//div[@class='tab_content']"))).getText();
-    }
-
-    /**
-     * Проверяет, что заголовок содержимого вкладки соответствует ожидаемому.
-     */
-    public boolean isTabContentHeaderDisplayed(String expectedHeader) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(tabContentContainer));
-        By headerLocator = By.xpath("//div[@id='home_tabs_content']//h2[contains(@class, 'tab_content_title') and text()='" + expectedHeader + "']");
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(headerLocator)).isDisplayed();
+        return wait.until(ExpectedConditions.visibilityOf(activeTabTitleElement)).getText();
     }
 }

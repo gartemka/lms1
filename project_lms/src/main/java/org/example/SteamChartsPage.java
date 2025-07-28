@@ -3,6 +3,9 @@ package org.example;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -16,33 +19,36 @@ public class SteamChartsPage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    // --- Локаторы для страницы чартов (https://store.steampowered.com/charts/topselling/) ---
-    // ИСПРАВЛЕНИЕ: topsellingTableXPath теперь просто String, а не By
-    private String topsellingTableXPath = "//table[contains(@class, '_3arZn0BMPzyhcYNADe193m')]";
-    private By pageHeader = By.xpath("//div[@id='steam_charts_root_content']//h1[text()='Лидеры продаж']");
+    // --- Локаторы с @FindBy ---
+    private String topsellingTableXPath = "//table[contains(@class, '_3arZn0BMPzyhcYNADe193m')]"; // Базовый XPath для таблицы
 
-    // Локаторы для выпадающего списка страны
-    private By countryDropdownButton = By.xpath("//div[contains(@class, 'cuSpV3QmWAyfy5jEL_lAD')]//button[contains(@class, 'DialogDropDown') and ./div[contains(@class, 'DialogDropDown_CurrentDisplay')]]");
-    private By countryGlobalOption = By.xpath("//div[contains(@class, 'DialogDropDownMenu')]//div[text()='По всему миру']");
-    private By currentCountryDisplay = By.xpath("//div[contains(@class, 'cuSpV3QmWAyfy5jEL_lAD')]//div[contains(@class, 'DialogDropDown_CurrentDisplay')]");
+    @FindBy(how = How.XPATH, using = "//div[@id='steam_charts_root_content']//h1[text()='Лидеры продаж']")
+    private WebElement pageHeader;
 
-    // ИСПРАВЛЕНИЕ: topSellingTable создается из строкового topsellingTableXPath
-    private By topSellingTable = By.xpath(topsellingTableXPath);
-    // ИСПРАВЛЕНИЕ: tableRows использует строковый topsellingTableXPath
-    private By tableRows = By.xpath(topsellingTableXPath + "//tbody//tr"); // Все строки таблицы (без заголовка)
 
+    @FindBy(how = How.XPATH, using = "//div[contains(@class, 'DialogDropDownMenu')]//div[text()='По всему миру']")
+    private WebElement countryGlobalOption;
+    @FindBy(how = How.XPATH, using = "//table[contains(@class, '_3arZn0BMPzyhcYNADe193m')]")
+    private WebElement topSellingTable;
+
+    // Элементы строк таблицы (ищутся динамически, поэтому By не @FindBy)
+    private By tableRows = By.xpath(topsellingTableXPath + "//tbody//tr");
+
+    // Локаторы для получения названия и цены внутри ОДНОЙ строки таблицы (используются относительно WebElement строки)
     private By gameTitleRelativeLocator = By.xpath(".//a[contains(@class, '_2C5PJOUH6RqyuBNEwaCE9X')]//div[contains(@class, '_1n_4-zvf0n4aqGEksbgW9N')]");
     private By gamePriceRelativeLocator = By.xpath(".//div[contains(@class, 'StoreSalePriceWidgetContainer')]//div[contains(@class, '_3j4dI1yA7cRfCvK8h406OB')]");
 
-    private By viewMoreTopSellersButton = By.xpath("//button[text()='Просмотреть больше лидеров продаж']");
+    @FindBy(how = How.XPATH, using = "//button[text()='Просмотреть больше лидеров продаж']")
+    private WebElement viewMoreTopSellersButton;
 
 
     public SteamChartsPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
         this.wait = wait;
+        PageFactory.initElements(driver, this); // Инициализация элементов PageFactory
         // Убедимся, что мы на странице чартов
         wait.until(ExpectedConditions.urlContains(Constants.STEAM_CHARTS_TOPSALES_URL));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(pageHeader));
+        wait.until(ExpectedConditions.visibilityOf(pageHeader));
         System.out.println("Создан Page Object SteamChartsPage. Текущий URL: " + driver.getCurrentUrl());
     }
 
@@ -50,14 +56,14 @@ public class SteamChartsPage {
      * Получает заголовок страницы чартов.
      */
     public String getPageHeader() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(pageHeader)).getText();
+        return wait.until(ExpectedConditions.visibilityOf(pageHeader)).getText();
     }
 
     /**
      * Проверяет, отображается ли таблица лидеров продаж.
      */
     public boolean isTopSellingTableDisplayed() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(topSellingTable)).isDisplayed();
+        return wait.until(ExpectedConditions.visibilityOf(topSellingTable)).isDisplayed();
     }
 
     /**
@@ -66,7 +72,6 @@ public class SteamChartsPage {
      * @return Название игры.
      */
     public String getGameTitleFromRow(WebElement rowElement) {
-        // ИСПРАВЛЕНИЕ: Используем findElement на rowElement
         return wait.until(ExpectedConditions.visibilityOf(rowElement.findElement(gameTitleRelativeLocator))).getText();
     }
 
@@ -76,7 +81,6 @@ public class SteamChartsPage {
      * @return Цена игры (текст).
      */
     public String getGamePriceFromRow(WebElement rowElement) {
-        // ИСПРАВЛЕНИЕ: Используем findElement на rowElement
         return wait.until(ExpectedConditions.visibilityOf(rowElement.findElement(gamePriceRelativeLocator))).getText();
     }
 
@@ -86,7 +90,7 @@ public class SteamChartsPage {
     public void clickViewMoreTopSellers() {
         wait.until(ExpectedConditions.elementToBeClickable(viewMoreTopSellersButton)).click();
         System.out.println("Клик по кнопке 'Просмотреть больше лидеров продаж'.");
-        wait.until(ExpectedConditions.urlContains("topselling/PL#tab=TopSellers")); // URL для Польши
+        wait.until(ExpectedConditions.urlContains("topselling/PL#tab=TopSellers"));
     }
 
     /**
@@ -94,39 +98,20 @@ public class SteamChartsPage {
      * @return Название кликнутой игры для проверки на следующей странице.
      */
     public String clickFirstGameInList() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(topSellingTable)); // Убедимся, что таблица видна
-        // ИСПРАВЛЕНИЕ: Используем topsellingTableXPath для получения первой строки
+        wait.until(ExpectedConditions.visibilityOf(topSellingTable));
+        // Находим первую строку таблицы
         WebElement firstRow = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(topsellingTableXPath + "//tr[1]")));
-
         // Получаем элемент ссылки внутри первой строки
-        // ИСПРАВЛЕНИЕ: FindElement вызывается на firstRow
         WebElement firstGameLink = wait.until(ExpectedConditions.elementToBeClickable(firstRow.findElement(By.xpath(".//a[contains(@class, '_2C5PJOUH6RqyuBNEwaCE9X')]"))));
 
-        String gameTitle = getGameTitleFromRow(firstRow); // Получаем название перед кликом
+        String gameTitle = getGameTitleFromRow(firstRow);
 
         firstGameLink.click();
         System.out.println("Клик по первой игре в списке: " + gameTitle);
         return gameTitle;
     }
 
-    /**
-     * Открывает выпадающий список стран.
-     */
-    public void openCountryDropdown() {
-        wait.until(ExpectedConditions.elementToBeClickable(countryDropdownButton)).click();
-        System.out.println("Клик по выпадающему списку стран.");
-        wait.until(ExpectedConditions.visibilityOfElementLocated(countryGlobalOption));
-    }
 
-    /**
-     * Выбирает опцию "По всему миру" в выпадающем списке стран.
-     */
-    public void selectGlobalCountryOption() {
-        wait.until(ExpectedConditions.elementToBeClickable(countryGlobalOption)).click();
-        System.out.println("Выбрана опция 'По всему миру'.");
-        wait.until(ExpectedConditions.textToBePresentInElementLocated(currentCountryDisplay, "По всему миру"));
-        wait.until(ExpectedConditions.urlContains("topselling/global"));
-    }
 
     /**
      * Получает названия и цены первых N игр.
@@ -135,7 +120,7 @@ public class SteamChartsPage {
      */
     public List<Map<String, String>> getTopNGamesData(int count) {
         List<Map<String, String>> gamesData = new ArrayList<>();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(topSellingTable));
+        wait.until(ExpectedConditions.visibilityOf(topSellingTable));
         List<WebElement> rows = driver.findElements(tableRows);
 
         int actualCount = Math.min(count, rows.size());
@@ -147,7 +132,6 @@ public class SteamChartsPage {
             Map<String, String> gameInfo = new HashMap<>();
             gameInfo.put("title", title);
             gameInfo.put("price", price);
-            gamesData.add(gameInfo);
         }
         return gamesData;
     }

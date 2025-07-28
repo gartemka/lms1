@@ -17,19 +17,13 @@ public class SteamChartsScenarioTest extends BaseTest { // Наследуем о
     void testTop10GamesFromSearchResultsScenario() { // ИЗМЕНЕНИЕ: Название теста
         SteamHomePage homePage = new SteamHomePage(driver, wait);
 
-        // Шаг 1: Открываем домашнюю страницу (уже сделано в BaseTest.setUp())
-        // Навигация в "Новое и интересное" -> "Лидеры продаж"
-        // Теперь этот метод возвращает страницу результатов поиска из-за редиректа Steam
-        SteamSearchResultsPage searchResultsPage = homePage.navigateToBestsellers(); // ИЗМЕНЕНИЕ: Тип возвращаемого PO
+
+        SteamSearchResultsPage searchResultsPage = homePage.navigateToBestsellers();
 
         // Ассерты для Шага 1: Проверяем, что попали на страницу результатов поиска
-        wait.until(ExpectedConditions.urlContains("search/?filter=topsellers")); // ИЗМЕНЕНИЕ: Ожидаемый URL
+        wait.until(ExpectedConditions.urlContains("search/?filter=topsellers"));
         Assertions.assertTrue(driver.getCurrentUrl().contains("search/?filter=topsellers"), "Ошибка: Не удалось перейти на страницу результатов поиска по лидерам продаж.");
         System.out.println("✓ Успешно перешли на страницу результатов поиска по лидерам продаж: " + driver.getCurrentUrl());
-
-        // Шаг 2 (УДАЛЕНО ИЗ ЭТОГО СЦЕНАРИЯ): Изменение страны на "По всему миру"
-        // На странице результатов поиска (search/?filter=topsellers) нет такого же выпадающего списка стран.
-        // Если нужно тестировать изменение страны именно на этой странице, потребуются новые локаторы и метод в SteamSearchResultsPage.
 
         // Шаг 3 (по вашему запросу): Получение названий и цен первых 10 игр
         int numberOfGamesToGet = 10;

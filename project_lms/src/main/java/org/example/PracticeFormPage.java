@@ -5,9 +5,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.support.ui.Select; // Импорт Select class
+import org.openqa.selenium.support.ui.Select;
 
 import java.io.File;
 
@@ -16,62 +19,86 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.time.Month; // Импорт Month enum
+import java.time.Month;
 
 public class PracticeFormPage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    // --- Локаторы формы ---
-    private By firstNameField = By.id("firstName");
-    private By lastNameField = By.id("lastName");
-    private By userEmailField = By.id("userEmail");
+    // --- Локаторы формы с @FindBy ---
+    @FindBy(how = How.ID, using = "firstName")
+    private WebElement firstNameField;
+
+    @FindBy(how = How.ID, using = "lastName")
+    private WebElement lastNameField;
+
+    @FindBy(how = How.ID, using = "userEmail")
+    private WebElement userEmailField;
 
     // Радио-кнопки для пола - кликаем по LABEL, это надежнее
-    private By genderMaleRadioLabel = By.cssSelector("label[for='gender-radio-1']");
-    private By genderFemaleRadioLabel = By.cssSelector("label[for='gender-radio-2']");
-    private By genderOtherRadioLabel = By.cssSelector("label[for='gender-radio-3']");
+    @FindBy(how = How.CSS, using = "label[for='gender-radio-1']")
+    private WebElement genderMaleRadioLabel;
 
-    private By userNumberField = By.id("userNumber");
-    private By dateOfBirthInputField = By.id("dateOfBirthInput"); // Поле ввода для даты рождения
+    @FindBy(how = How.CSS, using = "label[for='gender-radio-2']")
+    private WebElement genderFemaleRadioLabel;
 
-    // Subjects - используем input внутри контейнера subjectsContainer
-    private By subjectsContainer = By.id("subjectsContainer"); // Контейнер для Select
-    private By subjectsInput = By.id("subjectsInput"); // Поле ввода для предметов (внутри Select)
+    @FindBy(how = How.CSS, using = "label[for='gender-radio-3']")
+    private WebElement genderOtherRadioLabel;
+
+    @FindBy(how = How.ID, using = "userNumber")
+    private WebElement userNumberField;
+
+    @FindBy(how = How.ID, using = "dateOfBirthInput")
+    private WebElement dateOfBirthInputField;
+
+    @FindBy(how = How.ID, using = "subjectsInput")
+    private WebElement subjectsInput;
 
     // Хобби - кликаем по LABEL, это надежнее
-    private By hobbiesSportsCheckboxLabel = By.cssSelector("label[for='hobbies-checkbox-1']");
-    private By hobbiesReadingCheckboxLabel = By.cssSelector("label[for='hobbies-checkbox-2']");
-    private By hobbiesMusicCheckboxLabel = By.cssSelector("label[for='hobbies-checkbox-3']");
+    @FindBy(how = How.CSS, using = "label[for='hobbies-checkbox-1']")
+    private WebElement hobbiesSportsCheckboxLabel;
 
-    private By uploadPictureInput = By.id("uploadPicture"); // Поле для загрузки файла (type="file")
-    private By currentAddressField = By.id("currentAddress");
+    @FindBy(how = How.CSS, using = "label[for='hobbies-checkbox-2']")
+    private WebElement hobbiesReadingCheckboxLabel;
 
-    // State и City - используем input внутри их контейнеров
-    private By stateDropdownContainer = By.id("state"); // Контейнер для State Select
-    private By stateInput = By.id("react-select-3-input"); // Поле ввода для State
+    @FindBy(how = How.CSS, using = "label[for='hobbies-checkbox-3']")
+    private WebElement hobbiesMusicCheckboxLabel;
 
-    private By cityDropdownContainer = By.id("city"); // Контейнер для City Select
-    private By cityInput = By.id("react-select-4-input"); // Поле ввода для City
+    @FindBy(how = How.ID, using = "uploadPicture")
+    private WebElement uploadPictureInput;
 
-    private By submitButton = By.id("submit");
+    @FindBy(how = How.ID, using = "currentAddress")
+    private WebElement currentAddressField;
+
+    @FindBy(how = How.ID, using = "react-select-3-input") // Поле ввода для State
+    private WebElement stateInput;
+
+    @FindBy(how = How.ID, using = "react-select-4-input") // Поле ввода для City
+    private WebElement cityInput;
+
+    @FindBy(how = How.ID, using = "submit")
+    private WebElement submitButton;
 
     // --- Локаторы модального окна подтверждения ---
-    private By modalTitle = By.id("example-modal-sizes-title-lg");
-    private By modalTableRows = By.xpath("//div[@class='table-responsive']//tbody/tr");
-    private By closeSubmitModalButton = By.id("closeLargeModal");
+    @FindBy(how = How.ID, using = "example-modal-sizes-title-lg")
+    private WebElement modalTitle;
+
+    @FindBy(how = How.XPATH, using = "//div[@class='table-responsive']//tbody/tr")
+    private List<WebElement> modalTableRows; // List<WebElement> для строк таблицы
+
+    @FindBy(how = How.ID, using = "closeLargeModal")
+    private WebElement closeSubmitModalButton;
 
 
     public PracticeFormPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
         this.wait = wait;
-        // Убедимся, что форма загружена, ожидая видимости первого поля
-        wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameField));
+        PageFactory.initElements(driver, this); // Инициализация элементов PageFactory
+        wait.until(ExpectedConditions.visibilityOf(firstNameField));
         System.out.println("Инициализирован Page Object: Practice Form Page.");
     }
 
     // --- Приватные методы для динамического создания локаторов ---
-    // ЭТИ МЕТОДЫ НЕ НАДО БЫЛО ИЗМЕНЯТЬ. ОНИ БЫЛИ ПРАВИЛЬНЫМИ
     private By getSubjectOptionByText(String text) {
         return By.xpath(String.format("//div[contains(@id, 'react-select') and contains(@id, 'option') and text()='%s']", text));
     }
@@ -101,21 +128,21 @@ public class PracticeFormPage {
     }
 
     public void setGender(String gender) {
-        By genderLocator;
+        WebElement genderElement;
         switch (gender.toLowerCase()) {
             case "male":
-                genderLocator = genderMaleRadioLabel;
+                genderElement = genderMaleRadioLabel;
                 break;
             case "female":
-                genderLocator = genderFemaleRadioLabel;
+                genderElement = genderFemaleRadioLabel;
                 break;
             case "other":
-                genderLocator = genderOtherRadioLabel;
+                genderElement = genderOtherRadioLabel;
                 break;
             default:
                 throw new IllegalArgumentException("Неверный пол: " + gender);
         }
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", driver.findElement(genderLocator));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", genderElement);
         System.out.println("Выбран пол: " + gender);
     }
 
@@ -125,10 +152,10 @@ public class PracticeFormPage {
     }
 
     public void setDateOfBirth(int year, int month, int day) {
-        WebElement dateInput = wait.until(ExpectedConditions.elementToBeClickable(dateOfBirthInputField));
+        wait.until(ExpectedConditions.elementToBeClickable(dateOfBirthInputField));
 
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", dateInput);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", dateInput);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", dateOfBirthInputField);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", dateOfBirthInputField);
 
         WebElement monthDropdownElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".react-datepicker__month-select")));
         Select monthSelect = new Select(monthDropdownElement);
@@ -146,8 +173,7 @@ public class PracticeFormPage {
 
     public void setSubjects(String... subjects) {
         for (String subject : subjects) {
-            WebElement subjectInput = wait.until(ExpectedConditions.elementToBeClickable(subjectsInput));
-            subjectInput.sendKeys(subject);
+            wait.until(ExpectedConditions.elementToBeClickable(subjectsInput)).sendKeys(subject);
             wait.until(ExpectedConditions.elementToBeClickable(getSubjectOptionByText(subject))).click();
             System.out.println("Добавлен предмет: " + subject);
         }
@@ -155,21 +181,21 @@ public class PracticeFormPage {
 
     public void setHobbies(String... hobbies) {
         for (String hobby : hobbies) {
-            By hobbyLocator;
+            WebElement hobbyCheckbox;
             switch (hobby.toLowerCase()) {
                 case "sports":
-                    hobbyLocator = hobbiesSportsCheckboxLabel;
+                    hobbyCheckbox = hobbiesSportsCheckboxLabel;
                     break;
                 case "reading":
-                    hobbyLocator = hobbiesReadingCheckboxLabel;
+                    hobbyCheckbox = hobbiesReadingCheckboxLabel;
                     break;
                 case "music":
-                    hobbyLocator = hobbiesMusicCheckboxLabel;
+                    hobbyCheckbox = hobbiesMusicCheckboxLabel;
                     break;
                 default:
                     throw new IllegalArgumentException("Неверное хобби: " + hobby);
             }
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", driver.findElement(hobbyLocator));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", hobbyCheckbox);
             System.out.println("Выбрано хобби: " + hobby);
         }
     }
@@ -179,7 +205,7 @@ public class PracticeFormPage {
         if (!uploadFile.exists()) {
             throw new IllegalArgumentException("Файл для загрузки не найден по пути: " + filePath);
         }
-        driver.findElement(uploadPictureInput).sendKeys(uploadFile.getAbsolutePath());
+        uploadPictureInput.sendKeys(uploadFile.getAbsolutePath());
         System.out.println("Загружено изображение: " + uploadFile.getName());
     }
 
@@ -190,34 +216,35 @@ public class PracticeFormPage {
 
     public void setStateAndCity(String state, String city) {
         // Выбираем State
-        WebElement stateInputElem = wait.until(ExpectedConditions.elementToBeClickable(stateInput));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", stateInputElem);
-        stateInputElem.sendKeys(state);
-
+        wait.until(ExpectedConditions.elementToBeClickable(stateInput));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", stateInput);
+        stateInput.sendKeys(state);
         wait.until(ExpectedConditions.elementToBeClickable(getStateOptionByText(state))).click();
         System.out.println("Выбрана область: " + state);
 
         // Выбираем City
-        WebElement cityInputElem = wait.until(ExpectedConditions.elementToBeClickable(cityInput));
-        cityInputElem.sendKeys(city);
+        wait.until(ExpectedConditions.elementToBeClickable(cityInput));
+        cityInput.sendKeys(city);
         wait.until(ExpectedConditions.elementToBeClickable(getCityOptionByText(city))).click();
         System.out.println("Выбран город: " + city);
     }
 
     public void submitForm() {
-        WebElement submitBtn = wait.until(ExpectedConditions.elementToBeClickable(submitButton));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", submitBtn);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", submitBtn);
+        wait.until(ExpectedConditions.elementToBeClickable(submitButton));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", submitButton);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", submitButton);
         System.out.println("Нажата кнопка 'Submit'.");
     }
 
     public Map<String, String> getSubmissionData() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(modalTitle));
+        wait.until(ExpectedConditions.visibilityOf(modalTitle));
         System.out.println("Модальное окно подтверждения отображается.");
 
         Map<String, String> submittedData = new HashMap<>();
-        List<WebElement> rows = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(modalTableRows));
-        for (WebElement row : rows) {
+        // Используем List<WebElement> modalTableRows, который уже инициализирован PageFactory
+        // Просто ждем, что эти элементы станут видимыми
+        wait.until(ExpectedConditions.visibilityOfAllElements(modalTableRows));
+        for (WebElement row : modalTableRows) {
             String label = row.findElement(By.xpath("./td[1]")).getText();
             String value = row.findElement(By.xpath("./td[2]")).getText();
             submittedData.put(label, value);
@@ -227,10 +254,9 @@ public class PracticeFormPage {
     }
 
     public void closeSubmissionModal() {
-        WebElement closeModalButton = wait.until(ExpectedConditions.elementToBeClickable(closeSubmitModalButton));
-        // ИСПРАВЛЕНИЕ: Кликаем по кнопке закрытия с помощью JavaScript для надежности
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", closeModalButton);
+        wait.until(ExpectedConditions.elementToBeClickable(closeSubmitModalButton));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", closeSubmitModalButton);
         System.out.println("Модальное окно подтверждения закрыто.");
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(modalTitle)); // Ждем, пока модальное окно исчезнет
+        wait.until(ExpectedConditions.invisibilityOf(modalTitle));
     }
 }

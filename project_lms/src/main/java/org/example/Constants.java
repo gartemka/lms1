@@ -3,9 +3,7 @@ package org.example;
 public final class Constants {
 
 
-    private Constants() {
-        // Приватный конструктор
-    }
+
 
     // --- Константы вашего проекта ---
 
@@ -18,10 +16,8 @@ public final class Constants {
     public static final String STEAM_CHARTS_TOPSALES_URL = STEAM_BASE_URL + "charts/topselling/";
     public static final String STEAM_FREE_TO_PLAY_URL = STEAM_BASE_URL + "genre/Free%20to%20Play/";
 
-    // Учетные данные для тестов (для тестового аккаунта, НЕ для реального!)
-    // ВНИМАНИЕ: ЗАМЕНИТЕ ЭТИ ЗАГЛУШКИ НА РЕАЛЬНЫЕ УЧЕТНЫЕ ДАННЫЕ ВАШЕГО ТЕСТОВОГО АККАУНТА STEAM
-    public static final String TEST_USERNAME = "ВАШ_ТЕСТОВЫЙ_ЛОГИН_STEAM"; // <-- ОБНОВИТЕ
-    public static final String TEST_PASSWORD = "ВАШ_ТЕСТОВЫЙ_ПАРОЛЬ_STEAM"; // <-- ОБНОВИТЕ
+    public static final String TEST_USERNAME = "ВАШ_ТЕСТОВЫЙ_ЛОГИН_STEAM";
+    public static final String TEST_PASSWORD = "ВАШ_ТЕСТОВЫЙ_ПАРОЛЬ_STEAM";
 
     // Пути к драйверам браузеров (Selenium Manager сделает их ненужными, но оставим для справки)
     public static final String CHROMEDRIVER_PATH = "/home/gamer/IdeaProjects/lms/src/resources/chromedriver"; // На самом деле не используется с Selenium Manager

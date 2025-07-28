@@ -3,6 +3,9 @@ package org.example;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -10,30 +13,31 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.time.Duration; // Импорт для Duration
+import java.time.Duration;
 
 public class SteamSearchResultsPage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    // --- Локаторы для страницы результатов поиска (filter=topsellers) ---
-    // Контейнер, содержащий все строки результатов поиска
-    private By searchResultsRowsContainer = By.id("search_resultsRows");
-    // Локатор для отдельной строки результата поиска (элемент <a>)
+    // --- Локаторы с @FindBy ---
+    @FindBy(how = How.ID, using = "search_resultsRows")
+    private WebElement searchResultsRowsContainer;
+
+    // Элементы строк результатов поиска (ищутся динамически, поэтому By не @FindBy)
     private By searchResultRow = By.xpath("//div[@id='search_resultsRows']/a[contains(@class, 'search_result_row')]");
 
-    // Локаторы для получения названия и цены внутри ОДНОЙ строки результата поиска (используются относительно родительской строки)
+    // Локаторы для получения названия и цены внутри ОДНОЙ строки результата поиска (используются относительно WebElement строки)
     private By gameTitleRelativeLocator = By.xpath(".//span[@class='title']");
-    // Локатор для цены: может быть 'free' или числовое значение
     private By gamePriceRelativeLocator = By.xpath(".//div[contains(@class, 'search_price_discount_combined')]//div[contains(@class, 'discount_final_price') or contains(@class, 'free')]");
 
 
     public SteamSearchResultsPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
         this.wait = wait;
+        PageFactory.initElements(driver, this); // Инициализация элементов PageFactory
         // Ожидаем, что мы находимся на странице результатов поиска и контейнер с ними видим
         wait.until(ExpectedConditions.urlContains("search/?filter=topsellers"));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(searchResultsRowsContainer));
+        wait.until(ExpectedConditions.visibilityOf(searchResultsRowsContainer));
         System.out.println("Создан Page Object SteamSearchResultsPage. Текущий URL: " + driver.getCurrentUrl());
     }
 
@@ -43,12 +47,10 @@ public class SteamSearchResultsPage {
      * @return Список Map<String, String>, где каждый Map содержит "title" и "price".
      */
     public List<Map<String, String>> getTopNGamesData(int count) {
-        List<Map<String, String>> gamesData = new ArrayList<>();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(searchResultsRowsContainer));
-
-        // Находим все строки результатов поиска
+        wait.until(ExpectedConditions.visibilityOf(searchResultsRowsContainer));
         List<WebElement> rows = driver.findElements(searchResultRow);
 
+        List<Map<String, String>> gamesData = new ArrayList<>();
         int actualCount = Math.min(count, rows.size());
 
         for (int i = 0; i < actualCount; i++) {
@@ -69,7 +71,6 @@ public class SteamSearchResultsPage {
      * @return Название игры.
      */
     public String getGameTitleFromRow(WebElement rowElement) {
-        // Ожидаем видимости элемента с названием внутри строки
         return wait.until(ExpectedConditions.visibilityOf(rowElement.findElement(gameTitleRelativeLocator))).getText();
     }
 
@@ -79,9 +80,13 @@ public class SteamSearchResultsPage {
      * @return Цена игры (текст).
      */
     public String getGamePriceFromRow(WebElement rowElement) {
-        // Ожидаем видимости элемента с ценой внутри строки
         return wait.until(ExpectedConditions.visibilityOf(rowElement.findElement(gamePriceRelativeLocator))).getText();
     }
+
+    /**
+     * Кликает по первой игре в списке результатов поиска.
+     * @return Название кликнутой игры для проверки на следующей странице.
+     */
 
 
 }
